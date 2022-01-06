@@ -5,8 +5,8 @@
 #include <LiquidCrystal_I2C.h>
 #include <HX711.h>
 
-// 08:3A:F2:AA:32:70
-uint8_t gatewayMacAddress[] = {0x08, 0x3A, 0xF2, 0xAA, 0x32, 0x70};
+// 08:3A:F2:6E:7B:40
+uint8_t gatewayMacAddress[] = {0x08, 0x3A, 0xF2, 0x6E, 0x7B, 0x40};
 
 constexpr char WIFI_SSID[] = "HUAWEI nova 5T";
 
@@ -28,7 +28,7 @@ int gram;
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 //
-const int max_tinggi = 25;
+const int min_tinggi = 5; // 3 cm penuh
 
 typedef struct pesan
 {
@@ -78,6 +78,12 @@ void loop()
   result == ESP_OK ? Serial.println("Pesan berhasil dikirim") : Serial.println("Pesan gagal dikirim");
 
   tampilLCD(dataPesan.tinggi);
+
+  Serial.print("Tinggi : ");
+  Serial.println(dataPesan.tinggi);
+
+  Serial.print("Berat : ");
+  Serial.println(dataPesan.berat);
 
   delay(2000);
 }
@@ -145,7 +151,6 @@ int hitungBerat()
   {
     scale.set_scale(calibration_factor);
     gram = scale.get_units();
-    Serial.println(gram);
     return gram >= 0 ? gram : 0;
   }
   Serial.println("HX711 tidak terhubung");
@@ -155,7 +160,7 @@ int hitungBerat()
 void tampilLCD(int tinggi)
 {
   lcd.setCursor(0, 0);
-  if (tinggi > 2)
+  if (tinggi > min_tinggi)
   {
     lcd.print("Tidak Penuh");
   }
